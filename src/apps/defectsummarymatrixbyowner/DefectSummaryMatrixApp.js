@@ -68,7 +68,6 @@
             this._extractAllowedValues(model, ['Priority', 'Owner']).then({
                 success: function(allowedValues) {
                     this.priorities = allowedValues.Priority;
-                    console.log(allowedValues.Owner);
                     this.owners = [];
                     for (var i = 0; i < allowedValues.Owner.length; i++) {
                         if (allowedValues.Owner[i] === 'builduser(reserved)') {
@@ -76,7 +75,6 @@
                         }
                         this.owners.push(allowedValues.Owner[i]);
                     }
-                    console.log(this.owners);
                     this._initializeAllDefectStore();
                 },
                 scope: this
@@ -157,8 +155,10 @@
         _populateMatrixTable: function(defectRecords) {
             var ownerIndex, priorityIndex;
             Ext.each(defectRecords, function(record) {
-                console.log(record.get('Owner'));
-                ownerIndex = this._determineOwnerIndex(record.get('Owner')._refObjectName);
+                ownerIndex = 0;
+                if (record.get('Owner')) {
+                    ownerIndex = this._determineOwnerIndex(record.get('Owner')._refObjectName);
+                }
                 priorityIndex = this._determinePriorityIndex(record.get('Priority'));
                 this.matrixTable[ownerIndex][priorityIndex]++;
             }, this);
@@ -326,7 +326,7 @@
 
         _createNewDefectFilters: function(owner, priority, allOwners, allPriorities) {
             var newFilters = [this.releaseFilter];
-
+            owner = (owner === 'None') ? '' : owner;
             if (!allOwners) {
                 newFilters.push({
                     property: 'Owner.DisplayName',
